@@ -1,11 +1,18 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: select-matching-issues
+description: Selects issues matching a query
 inputs:
-  milliseconds: # change this
+  path:
+    default: __matching-issues.txt
+    description: Path to store the resulting list of issues
+  query:
+    description: Query to use to search for matching issues
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  token:
+    description: Token to use to execute the search
+    required: true
+outputs:
+  path:
+    description: Path to file containing the list of issues
 runs:
   using: 'node12'
   main: 'dist/index.js'
