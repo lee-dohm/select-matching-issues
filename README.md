@@ -14,14 +14,14 @@ jobs:
     name: Close all issues labeled "bug"
     runs-on: ubuntu-latest
     steps:
-    - name: Find all bugs
-      id: bugs
-      uses: lee-dohm/select-matching-issues@v1
-      with:
-        query: "label:bug"
-        token: ${{ github.token }}
-    - name: Close found issues
-      run: cat ${{ steps.bugs.outputs.path }} | xargs gh issue close
+      - name: Find all bugs
+        id: bugs
+        uses: lee-dohm/select-matching-issues@v1
+        with:
+          query: 'label:bug'
+          token: ${{ github.token }}
+      - name: Close found issues
+        run: cat ${{ steps.bugs.outputs.path }} | xargs gh issue close
 ```
 
 ## License
