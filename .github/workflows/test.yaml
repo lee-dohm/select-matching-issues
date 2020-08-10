@@ -14,3 +14,17 @@ jobs:
 
       - run: npm ci
       - run: npm run ci
+  integrationTest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: npm ci
+      - run: npm run build
+      - uses: ./
+        id: result
+        with:
+          query: "label:integration-test"
+          token: ${{ github.token }}
+      - run: "grep -q 'https://github.com/lee-dohm/select-matching-issues/issues/6' __matching-issues.txt || exit 1"
+        name: "Fail unless file contains the expected URL"
