@@ -6,6 +6,9 @@ import * as github from './github'
 
 const writeFile = util.promisify(fs.writeFile)
 
+/**
+ * Performs the work of the Action.
+ */
 async function run(): Promise<void> {
   try {
     const path = core.getInput('path') ?? '__matching-issues.txt'
