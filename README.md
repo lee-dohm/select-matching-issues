@@ -28,7 +28,7 @@ jobs:
         id: bugs
         uses: lee-dohm/select-matching-issues@v1
         with:
-          query: "label:bug"
+          query: 'label:bug'
           token: ${{ github.token }}
       - name: Close found issues
         run: cat ${{ steps.bugs.outputs.path }} | xargs gh issue close
@@ -55,15 +55,15 @@ jobs:
         uses: lee-dohm/select-matching-issues@v1
         with:
           format: list
-          query: "label:out-of-office"
+          query: 'label:out-of-office'
           token: ${{ github.token }}
 ```
 
 Example output:
 
 ```markdown
-* [@octocat OoO Jan 1 through Jan 31](https://github.com/octocat/spoon-knife/issues/1)
-* [@lee-dohm OoO Feb 1 through Feb 28](https://github.com/octocat/spoon-knife/issues/3)
+- [@octocat OoO Jan 1 through Jan 31](https://github.com/octocat/spoon-knife/issues/1)
+- [@lee-dohm OoO Feb 1 through Feb 28](https://github.com/octocat/spoon-knife/issues/3)
 ```
 
 ## License
