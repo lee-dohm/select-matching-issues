@@ -1,6 +1,9 @@
 name: select-matching-issues
 description: Selects issues matching a query
 inputs:
+  format:
+    default: raw
+    description: Format to use when outputting the list of issues to the file
   path:
     default: __matching-issues.txt
     description: Path to store the resulting list of issues
