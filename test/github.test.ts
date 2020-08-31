@@ -1,6 +1,6 @@
 import nock from 'nock'
 
-import { formatNameWithOwner, getIssueUrls, GraphQlQueryResponseData } from '../src/github'
+import { formatNameWithOwner, getMatchingIssues, GraphQlQueryResponseData } from '../src/github'
 
 let requestBody: nock.Body
 
@@ -14,14 +14,14 @@ function graphqlNock(returnValue: GraphQlQueryResponseData): void {
     })
 }
 
-describe('getIssueUrls', () => {
+describe('getMatchingIssues', () => {
   const mockToken = '1234567890abcdef'
   const testQuery = 'label:weekly-issue'
 
   beforeEach(() => {
     Object.assign(process.env, {
       GITHUB_REPOSITORY: 'test-owner/test-repo',
-      GITHUB_ACTION: 'select-matching-issues',
+      GITHUB_ACTION: 'select-matching-issues'
     })
   })
 
@@ -31,32 +31,48 @@ describe('getIssueUrls', () => {
         search: {
           nodes: [
             {
-              url: 'https://github.com/test-owner/test-repo/issues/1219',
+              title: 'Foo',
+              url: 'https://github.com/test-owner/test-repo/issues/1219'
             },
             {
-              url: 'https://github.com/test-owner/test-repo/issues/1213',
+              title: 'Bar',
+              url: 'https://github.com/test-owner/test-repo/issues/1213'
             },
             {
-              url: 'https://github.com/test-owner/test-repo/issues/1207',
+              title: 'Baz',
+              url: 'https://github.com/test-owner/test-repo/issues/1207'
             },
             {
-              url: 'https://github.com/test-owner/test-repo/issues/1198',
-            },
-          ],
-        },
-      },
+              title: 'Quux',
+              url: 'https://github.com/test-owner/test-repo/issues/1198'
+            }
+          ]
+        }
+      }
     })
 
-    const urls = await getIssueUrls(mockToken, testQuery)
+    const issues = await getMatchingIssues(mockToken, testQuery)
 
     expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
       `repo:test-owner/test-repo ${testQuery}`
     )
-    expect(urls).toStrictEqual([
-      'https://github.com/test-owner/test-repo/issues/1219',
-      'https://github.com/test-owner/test-repo/issues/1213',
-      'https://github.com/test-owner/test-repo/issues/1207',
-      'https://github.com/test-owner/test-repo/issues/1198',
+    expect(issues).toStrictEqual([
+      {
+        title: 'Foo',
+        url: 'https://github.com/test-owner/test-repo/issues/1219'
+      },
+      {
+        title: 'Bar',
+        url: 'https://github.com/test-owner/test-repo/issues/1213'
+      },
+      {
+        title: 'Baz',
+        url: 'https://github.com/test-owner/test-repo/issues/1207'
+      },
+      {
+        title: 'Quux',
+        url: 'https://github.com/test-owner/test-repo/issues/1198'
+      }
     ])
   })
 
@@ -64,17 +80,17 @@ describe('getIssueUrls', () => {
     graphqlNock({
       data: {
         search: {
-          nodes: [],
-        },
-      },
+          nodes: []
+        }
+      }
     })
 
-    const numbers = await getIssueUrls(mockToken, testQuery)
+    const issues = await getMatchingIssues(mockToken, testQuery)
 
     expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
       `repo:test-owner/test-repo ${testQuery}`
     )
-    expect(numbers).toStrictEqual([])
+    expect(issues).toStrictEqual([])
   })
 })
 

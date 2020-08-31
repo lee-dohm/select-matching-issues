@@ -22,9 +22,19 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: ./
-        id: result
         with:
+          path: __test-raw.txt
           query: 'label:integration-test'
           token: ${{ github.token }}
-      - run: "grep -q 'https://github.com/lee-dohm/select-matching-issues/issues/6' __matching-issues.txt || exit 1"
-        name: 'Fail unless file contains the expected URL'
+      - run: 'cat __test-raw.txt'
+      - name: 'Fail unless raw file contains the expected URL'
+        run: "grep -q 'https://github.com/lee-dohm/select-matching-issues/issues/6' __test-raw.txt || exit 1"
+      - uses: ./
+        with:
+          format: list
+          path: __test-list.txt
+          query: 'label:integration-test'
+          token: ${{ github.token }}
+      - run: 'cat __test-list.txt'
+      - name: 'Fail unless list file contains the expected line'
+        run: "grep -q -F '* [Test issue](https://github.com/lee-dohm/select-matching-issues/issues/6)' __test-list.txt || exit 1"
