@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as util from 'util'
 
+import * as format from './format'
 import * as github from './github'
 
 const writeFile = util.promisify(fs.writeFile)
@@ -11,13 +12,21 @@ const writeFile = util.promisify(fs.writeFile)
  */
 async function run(): Promise<void> {
   try {
+    const outputFormat = core.getInput('format') ?? 'raw'
     const path = core.getInput('path') ?? '__matching-issues.txt'
     const searchQuery = core.getInput('query', { required: true })
     const token = core.getInput('token', { required: true })
 
-    const urls = await github.getIssueUrls(token, searchQuery)
+    const issues = await github.getMatchingIssues(token, searchQuery)
+    let text
 
-    await writeFile(path, urls.join('\n'))
+    if (outputFormat === 'list') {
+      text = format.list(issues)
+    } else {
+      text = format.raw(issues)
+    }
+
+    await writeFile(path, text)
 
     core.setOutput('path', path)
   } catch (error) {

@@ -11,6 +11,14 @@ interface IssueUrl {
 }
 
 /**
+ * An object containing information about a GitHub Issue.
+ */
+export interface Issue {
+  title: string
+  url: string
+}
+
+/**
  * An object containing a repository name and owner.
  */
 interface NameWithOwner {
@@ -29,6 +37,7 @@ query($searchQuery: String!) {
   search(first: 100, query: $searchQuery, type: ISSUE) {
     nodes {
       ... on Issue {
+        title
         url
       }
     }
@@ -46,7 +55,7 @@ export function formatNameWithOwner({ owner, repo }: NameWithOwner): string {
 }
 
 /**
- * Gets the list of issue URLs that match the query.
+ * Gets the list of Issues that match the query.
  *
  * Takes the `searchQuery`, includes a specifier to restrict the query to the current repo,
  * and inserts it into the GraphQL search query template.
@@ -54,7 +63,7 @@ export function formatNameWithOwner({ owner, repo }: NameWithOwner): string {
  * @param token Token to use to execute the search
  * @param searchQuery Search query to execute
  */
-export async function getIssueUrls(token: string, searchQuery: string): Promise<string[]> {
+export async function getMatchingIssues(token: string, searchQuery: string): Promise<Issue[]> {
   const client = github.getOctokit(token)
   const context = github.context
   const queryText = `repo:${formatNameWithOwner(context.repo)} ${searchQuery}`
@@ -66,7 +75,7 @@ export async function getIssueUrls(token: string, searchQuery: string): Promise<
   core.debug(`Results: ${JSON.stringify(results, null, 2)}`)
 
   if (results) {
-    return results.search.nodes.map((issue: IssueUrl) => issue.url)
+    return results.search.nodes.map((issue: Issue) => issue)
   } else {
     return []
   }
