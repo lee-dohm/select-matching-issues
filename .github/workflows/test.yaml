@@ -31,6 +31,7 @@ jobs:
         run: "grep -q 'https://github.com/lee-dohm/select-matching-issues/issues/6' __test-raw.txt || exit 1"
       - uses: ./
         with:
+          format: list
           path: __test-list.txt
           query: 'label:integration-test'
           token: ${{ github.token }}
