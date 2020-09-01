@@ -37,4 +37,4 @@ jobs:
           token: ${{ github.token }}
       - run: 'cat __test-list.txt'
       - name: 'Fail unless list file contains the expected line'
-        run: "grep -q -F '- [Test issue](https://github.com/lee-dohm/select-matching-issues/issues/6)' __test-list.txt || exit 1"
+        run: "grep -q -F \"- [Test issue](https://github.com/lee-dohm/select-matching-issues/issues/6)\" __test-list.txt || exit 1"
