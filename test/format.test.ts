@@ -23,10 +23,10 @@ describe('list', () => {
   it('returns a list of Issue links', () => {
     const text = format.list(issues)
 
-    expect(text).toBe(`* [Foo](https://github.com/test-owner/test-repo/issues/1219)
-* [Bar](https://github.com/test-owner/test-repo/issues/1213)
-* [Baz](https://github.com/test-owner/test-repo/issues/1207)
-* [Quux](https://github.com/test-owner/test-repo/issues/1198)`)
+    expect(text).toBe(`- [Foo](https://github.com/test-owner/test-repo/issues/1219)
+- [Bar](https://github.com/test-owner/test-repo/issues/1213)
+- [Baz](https://github.com/test-owner/test-repo/issues/1207)
+- [Quux](https://github.com/test-owner/test-repo/issues/1198)`)
   })
 
   it('returns an empty string when given an empty list', () => {

@@ -8,7 +8,7 @@ import { Issue } from './github'
  * @param issues List of issues to format
  */
 export function list(issues: Issue[]): string {
-  return issues.map((issue) => `* [${issue.title}](${issue.url})`).join('\n')
+  return issues.map((issue) => `- [${issue.title}](${issue.url})`).join('\n')
 }
 
 /**
