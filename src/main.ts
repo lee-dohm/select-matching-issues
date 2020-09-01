@@ -28,6 +28,10 @@ async function run(): Promise<void> {
 
     await writeFile(path, text)
 
+    core.debug('----- Output -----')
+    core.debug(text)
+    core.debug('------------------')
+
     core.setOutput('path', path)
   } catch (error) {
     core.setFailed(error.message)
