@@ -1,4 +1,5 @@
 import { Issue } from './github'
+import { OutputFormat } from './output-format'
 
 /**
  * Formats the issues into a Markdown unordered list of Issue links, one per line.
@@ -18,4 +19,23 @@ export function list(issues: Issue[]): string {
  */
 export function raw(issues: Issue[]): string {
   return issues.map((issue) => issue.url).join('\n')
+}
+
+/**
+ * Writes the list of issues to a string in the requested format.
+ *
+ * @param issues List of issues to format
+ * @param format Format to use when writing the list of issues
+ */
+export function write(issues: Issue[], format: OutputFormat): string {
+  switch (format) {
+    case OutputFormat.LIST:
+      return list(issues)
+
+    case OutputFormat.RAW:
+      return raw(issues)
+
+    default:
+      throw new Error(`Invalid output format: ${format}`)
+  }
 }
