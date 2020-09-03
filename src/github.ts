@@ -4,13 +4,6 @@ import * as github from '@actions/github'
 import { GitHub } from '@actions/github/lib/utils'
 
 /**
- * An object containing an issue URL.
- */
-interface IssueUrl {
-  url: string
-}
-
-/**
  * An object containing information about a GitHub Issue.
  */
 export interface Issue {
