@@ -25,7 +25,7 @@ describe('getMatchingIssues', () => {
     })
   })
 
-  it('returns the list of urls', async () => {
+  it('returns the list of issues', async () => {
     graphqlNock({
       data: {
         search: {

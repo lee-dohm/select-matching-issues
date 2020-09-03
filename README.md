@@ -47,15 +47,14 @@ https://github.com/octocat/spoon-knife/issues/9
 ```yaml
 jobs:
   markdownList:
-    name: List issues labeled "out-of-office"
+    name: List open issues labeled "out-of-office"
     runs-on: ubuntu-latest
     steps:
       - name: List out-of-office issues
-        id: ooo_list
         uses: lee-dohm/select-matching-issues@v1
         with:
           format: list
-          query: 'label:out-of-office'
+          query: 'label:out-of-office is:open'
           token: ${{ github.token }}
 ```
 

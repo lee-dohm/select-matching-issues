@@ -4,6 +4,7 @@ import * as util from 'util'
 
 import * as format from './format'
 import * as github from './github'
+import { OutputFormat } from './output-format'
 
 const writeFile = util.promisify(fs.writeFile)
 
@@ -12,19 +13,13 @@ const writeFile = util.promisify(fs.writeFile)
  */
 async function run(): Promise<void> {
   try {
-    const outputFormat = core.getInput('format') ?? 'raw'
+    const outputFormat: OutputFormat = (core.getInput('format') as OutputFormat) ?? OutputFormat.RAW
     const path = core.getInput('path') ?? '__matching-issues.txt'
     const searchQuery = core.getInput('query', { required: true })
     const token = core.getInput('token', { required: true })
 
     const issues = await github.getMatchingIssues(token, searchQuery)
-    let text
-
-    if (outputFormat === 'list') {
-      text = format.list(issues)
-    } else {
-      text = format.raw(issues)
-    }
+    const text = format.write(issues, outputFormat)
 
     await writeFile(path, text)
 
