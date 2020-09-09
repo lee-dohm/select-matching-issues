@@ -26,8 +26,12 @@ export type GraphQlQueryResponseData = { [key: string]: any } | null
  * GraphQL query template to use to execute the search.
  */
 const query = `
-query($searchQuery: String!) {
-  search(first: 100, query: $searchQuery, type: ISSUE) {
+query($searchQuery: String!, $cursor: String) {
+  search(first: 100, query: $searchQuery, type: ISSUE, after: $cursor) {
+    pageInfo {
+      hasNextPage,
+      endCursor
+    }
     nodes {
       ... on Issue {
         title
@@ -61,15 +65,28 @@ export async function getMatchingIssues(token: string, searchQuery: string): Pro
   const context = github.context
   const queryText = `repo:${formatNameWithOwner(context.repo)} ${searchQuery}`
 
+  let cursor: string | null = null
+  let hasNextPage = true
+  let issues: Issue[] = []
+
   core.debug(`Query: ${queryText}`)
 
-  const results: GraphQlQueryResponseData = await client.graphql(query, { searchQuery: queryText })
+  while (hasNextPage) {
+    const results: GraphQlQueryResponseData = await client.graphql(query, {
+      cursor,
+      searchQuery: queryText
+    })
 
-  core.debug(`Results: ${JSON.stringify(results, null, 2)}`)
+    core.debug(`Results: ${JSON.stringify(results, null, 2)}`)
 
-  if (results) {
-    return results.search.nodes.map((issue: Issue) => issue)
-  } else {
-    return []
+    if (results) {
+      cursor = results.search.pageInfo.endCursor
+      issues = issues.concat(results.search.nodes.map((issue: Issue) => issue))
+      hasNextPage = results.search.pageInfo.hasNextPage
+    } else {
+      hasNextPage = false
+    }
   }
+
+  return issues
 }

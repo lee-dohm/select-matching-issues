@@ -15,6 +15,7 @@ function graphqlNock(returnValue: GraphQlQueryResponseData): void {
 }
 
 describe('getMatchingIssues', () => {
+  const fakeEndCursor = 'fakeEndCursor'
   const mockToken = '1234567890abcdef'
   const testQuery = 'label:weekly-issue'
 
@@ -29,6 +30,10 @@ describe('getMatchingIssues', () => {
     graphqlNock({
       data: {
         search: {
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: fakeEndCursor
+          },
           nodes: [
             {
               title: 'Foo',
@@ -80,6 +85,10 @@ describe('getMatchingIssues', () => {
     graphqlNock({
       data: {
         search: {
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: fakeEndCursor
+          },
           nodes: []
         }
       }
