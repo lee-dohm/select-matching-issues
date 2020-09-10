@@ -4,14 +4,16 @@ import { formatNameWithOwner, getMatchingIssues, GraphQlQueryResponseData } from
 
 let requestBody: nock.Body
 
-function graphqlNock(returnValue: GraphQlQueryResponseData): void {
-  nock('https://api.github.com')
-    .post('/graphql')
-    .reply(200, (_, body) => {
+function graphqlNock(...returnValues: GraphQlQueryResponseData[]): void {
+  const n = nock('https://api.github.com')
+
+  returnValues.forEach((returnValue) => {
+    n.post('/graphql').reply(200, (_, body) => {
       requestBody = body
 
       return returnValue
     })
+  })
 }
 
 describe('getMatchingIssues', () => {
