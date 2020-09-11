@@ -101,6 +101,110 @@ describe('getMatchingIssues', () => {
     expect(requestBody.variables.searchQuery).toBe(`repo:test-owner/test-repo ${testQuery}`)
     expect(issues).toStrictEqual([])
   })
+
+  it('paginates through results', async () => {
+    graphqlNock(
+      {
+        data: {
+          search: {
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: fakeEndCursor
+            },
+            nodes: [
+              {
+                title: 'Foo',
+                url: 'https://github.com/test-owner/test-repo/issues/1219'
+              },
+              {
+                title: 'Bar',
+                url: 'https://github.com/test-owner/test-repo/issues/1213'
+              },
+              {
+                title: 'Baz',
+                url: 'https://github.com/test-owner/test-repo/issues/1207'
+              },
+              {
+                title: 'Quux',
+                url: 'https://github.com/test-owner/test-repo/issues/1198'
+              }
+            ]
+          }
+        }
+      },
+      {
+        data: {
+          search: {
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: fakeEndCursor
+            },
+            nodes: [
+              {
+                title: 'Foo',
+                url: 'https://github.com/test-owner/test-repo/issues/1197'
+              },
+              {
+                title: 'Bar',
+                url: 'https://github.com/test-owner/test-repo/issues/1196'
+              },
+              {
+                title: 'Baz',
+                url: 'https://github.com/test-owner/test-repo/issues/1195'
+              },
+              {
+                title: 'Quux',
+                url: 'https://github.com/test-owner/test-repo/issues/1194'
+              }
+            ]
+          }
+        }
+      }
+    )
+
+    const issues = await getMatchingIssues(mockToken, testQuery)
+
+    requestBodies.forEach((requestBody) => {
+      expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
+        `repo:test-owner/test-repo ${testQuery}`
+      )
+    })
+
+    expect(issues).toStrictEqual([
+      {
+        title: 'Foo',
+        url: 'https://github.com/test-owner/test-repo/issues/1219'
+      },
+      {
+        title: 'Bar',
+        url: 'https://github.com/test-owner/test-repo/issues/1213'
+      },
+      {
+        title: 'Baz',
+        url: 'https://github.com/test-owner/test-repo/issues/1207'
+      },
+      {
+        title: 'Quux',
+        url: 'https://github.com/test-owner/test-repo/issues/1198'
+      },
+      {
+        title: 'Foo',
+        url: 'https://github.com/test-owner/test-repo/issues/1197'
+      },
+      {
+        title: 'Bar',
+        url: 'https://github.com/test-owner/test-repo/issues/1196'
+      },
+      {
+        title: 'Baz',
+        url: 'https://github.com/test-owner/test-repo/issues/1195'
+      },
+      {
+        title: 'Quux',
+        url: 'https://github.com/test-owner/test-repo/issues/1194'
+      }
+    ])
+  })
 })
 
 describe('formatNameWithOwner', () => {
