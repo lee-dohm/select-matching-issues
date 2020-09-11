@@ -1,5 +1,7 @@
 # Select Matching Issues
 
+![Test](https://github.com/lee-dohm/select-matching-issues/workflows/Test/badge.svg)
+
 A GitHub Action to select issues matching a query.
 
 ## Use
