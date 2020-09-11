@@ -2,14 +2,14 @@ import nock from 'nock'
 
 import { formatNameWithOwner, getMatchingIssues, GraphQlQueryResponseData } from '../src/github'
 
-let requestBody: nock.Body
+let requestBodies: nock.Body[] = []
 
 function graphqlNock(...returnValues: GraphQlQueryResponseData[]): void {
   const n = nock('https://api.github.com')
 
   returnValues.forEach((returnValue) => {
     n.post('/graphql').reply(200, (_, body) => {
-      requestBody = body
+      requestBodies.push(body)
 
       return returnValue
     })
@@ -59,10 +59,9 @@ describe('getMatchingIssues', () => {
     })
 
     const issues = await getMatchingIssues(mockToken, testQuery)
+    const requestBody = requestBodies[0] as Record<string, any>
 
-    expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
-      `repo:test-owner/test-repo ${testQuery}`
-    )
+    expect(requestBody.variables.searchQuery).toBe(`repo:test-owner/test-repo ${testQuery}`)
     expect(issues).toStrictEqual([
       {
         title: 'Foo',
@@ -97,10 +96,9 @@ describe('getMatchingIssues', () => {
     })
 
     const issues = await getMatchingIssues(mockToken, testQuery)
+    const requestBody = requestBodies[0] as Record<string, any>
 
-    expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
-      `repo:test-owner/test-repo ${testQuery}`
-    )
+    expect(requestBody.variables.searchQuery).toBe(`repo:test-owner/test-repo ${testQuery}`)
     expect(issues).toStrictEqual([])
   })
 })
