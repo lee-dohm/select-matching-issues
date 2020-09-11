@@ -2,19 +2,22 @@ import nock from 'nock'
 
 import { formatNameWithOwner, getMatchingIssues, GraphQlQueryResponseData } from '../src/github'
 
-let requestBody: nock.Body
+let requestBodies: nock.Body[] = []
 
-function graphqlNock(returnValue: GraphQlQueryResponseData): void {
-  nock('https://api.github.com')
-    .post('/graphql')
-    .reply(200, (_, body) => {
-      requestBody = body
+function graphqlNock(...returnValues: GraphQlQueryResponseData[]): void {
+  const n = nock('https://api.github.com')
+
+  returnValues.forEach((returnValue) => {
+    n.post('/graphql').reply(200, (_, body) => {
+      requestBodies.push(body)
 
       return returnValue
     })
+  })
 }
 
 describe('getMatchingIssues', () => {
+  const fakeEndCursor = 'fakeEndCursor'
   const mockToken = '1234567890abcdef'
   const testQuery = 'label:weekly-issue'
 
@@ -29,6 +32,10 @@ describe('getMatchingIssues', () => {
     graphqlNock({
       data: {
         search: {
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: fakeEndCursor
+          },
           nodes: [
             {
               title: 'Foo',
@@ -52,10 +59,9 @@ describe('getMatchingIssues', () => {
     })
 
     const issues = await getMatchingIssues(mockToken, testQuery)
+    const requestBody = requestBodies[0] as Record<string, any>
 
-    expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
-      `repo:test-owner/test-repo ${testQuery}`
-    )
+    expect(requestBody.variables.searchQuery).toBe(`repo:test-owner/test-repo ${testQuery}`)
     expect(issues).toStrictEqual([
       {
         title: 'Foo',
@@ -80,17 +86,124 @@ describe('getMatchingIssues', () => {
     graphqlNock({
       data: {
         search: {
+          pageInfo: {
+            hasNextPage: false,
+            endCursor: fakeEndCursor
+          },
           nodes: []
         }
       }
     })
 
     const issues = await getMatchingIssues(mockToken, testQuery)
+    const requestBody = requestBodies[0] as Record<string, any>
 
-    expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
-      `repo:test-owner/test-repo ${testQuery}`
-    )
+    expect(requestBody.variables.searchQuery).toBe(`repo:test-owner/test-repo ${testQuery}`)
     expect(issues).toStrictEqual([])
+  })
+
+  it('paginates through results', async () => {
+    graphqlNock(
+      {
+        data: {
+          search: {
+            pageInfo: {
+              hasNextPage: true,
+              endCursor: fakeEndCursor
+            },
+            nodes: [
+              {
+                title: 'Foo',
+                url: 'https://github.com/test-owner/test-repo/issues/1219'
+              },
+              {
+                title: 'Bar',
+                url: 'https://github.com/test-owner/test-repo/issues/1213'
+              },
+              {
+                title: 'Baz',
+                url: 'https://github.com/test-owner/test-repo/issues/1207'
+              },
+              {
+                title: 'Quux',
+                url: 'https://github.com/test-owner/test-repo/issues/1198'
+              }
+            ]
+          }
+        }
+      },
+      {
+        data: {
+          search: {
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: fakeEndCursor
+            },
+            nodes: [
+              {
+                title: 'Foo',
+                url: 'https://github.com/test-owner/test-repo/issues/1197'
+              },
+              {
+                title: 'Bar',
+                url: 'https://github.com/test-owner/test-repo/issues/1196'
+              },
+              {
+                title: 'Baz',
+                url: 'https://github.com/test-owner/test-repo/issues/1195'
+              },
+              {
+                title: 'Quux',
+                url: 'https://github.com/test-owner/test-repo/issues/1194'
+              }
+            ]
+          }
+        }
+      }
+    )
+
+    const issues = await getMatchingIssues(mockToken, testQuery)
+
+    requestBodies.forEach((requestBody) => {
+      expect((requestBody as Record<string, any>).variables.searchQuery).toBe(
+        `repo:test-owner/test-repo ${testQuery}`
+      )
+    })
+
+    expect(issues).toStrictEqual([
+      {
+        title: 'Foo',
+        url: 'https://github.com/test-owner/test-repo/issues/1219'
+      },
+      {
+        title: 'Bar',
+        url: 'https://github.com/test-owner/test-repo/issues/1213'
+      },
+      {
+        title: 'Baz',
+        url: 'https://github.com/test-owner/test-repo/issues/1207'
+      },
+      {
+        title: 'Quux',
+        url: 'https://github.com/test-owner/test-repo/issues/1198'
+      },
+      {
+        title: 'Foo',
+        url: 'https://github.com/test-owner/test-repo/issues/1197'
+      },
+      {
+        title: 'Bar',
+        url: 'https://github.com/test-owner/test-repo/issues/1196'
+      },
+      {
+        title: 'Baz',
+        url: 'https://github.com/test-owner/test-repo/issues/1195'
+      },
+      {
+        title: 'Quux',
+        url: 'https://github.com/test-owner/test-repo/issues/1194'
+      }
+    ])
   })
 })
 
