@@ -1,6 +1,7 @@
 /**
  * Valid output formats for the list of matching issues.
  */
+// eslint-disable-next-line no-shadow
 export enum OutputFormat {
   /** Outputs an unordered list of Markdown links */
   LIST = 'list',
