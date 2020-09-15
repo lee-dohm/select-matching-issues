@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Formats the release notes by obtaining the PRs that have been merged between
+# the latest release and the current commit.
+
+if ! command -v gh &> /dev/null; then
+  echo "The GitHub CLI tool is required for this command to function. See: https://github.com/cli/cli"
+  exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+  echo "The jq tool is required for this command to function. See: https://stedolan.github.io/jq/"
+  exit 1
+fi
+
+latest_release=$(gh api repos/lee-dohm/select-matching-issues/releases/latest | jq -r .tag_name)
+
+npx extract-pr-titles --from "$latest_release" --to HEAD --format "* [{title}](https://github.com/lee-dohm/select-matching-issues/pull/{number})"
