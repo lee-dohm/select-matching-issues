@@ -1,6 +1,6 @@
 {
   "name": "select-matching-issues",
-  "version": "0.0.0",
+  "version": "1.2.0",
   "private": true,
   "description": "A GitHub Action to select issues matching a query",
   "main": "dist/index.js",
