@@ -13,6 +13,7 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
-latest_release=$(gh api repos/lee-dohm/select-matching-issues/releases/latest | jq -r .tag_name)
+repo_nwo=$(gh repo view | head -n1 | cut -f2)
+latest_release=$(gh api repos/$repo_nwo/releases/latest | jq -r .tag_name)
 
-npx extract-pr-titles --from "$latest_release" --to HEAD --format "* [{title}](https://github.com/lee-dohm/select-matching-issues/pull/{number})"
+npx extract-pr-titles --from "$latest_release" --to HEAD --format "* [{title}](https://github.com/$repo_nwo/pull/{number})"
