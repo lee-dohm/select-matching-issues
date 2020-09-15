@@ -19,8 +19,21 @@ interface NameWithOwner {
   repo: string
 }
 
+/**
+ * Value returned from a successful GraphQL query.
+ */
+interface QueryResponse {
+  search: {
+    pageInfo: {
+      endCursor: string
+      hasNextPage: boolean
+    }
+    nodes: Issue[]
+  }
+}
+
 export type GitHubClient = InstanceType<typeof GitHub>
-export type GraphQlQueryResponseData = { [key: string]: any } | null
+export type GraphQlQueryResponseData = QueryResponse | null
 
 /**
  * GraphQL query template to use to execute the search.
@@ -81,7 +94,7 @@ export async function getMatchingIssues(token: string, searchQuery: string): Pro
 
     if (results) {
       cursor = results.search.pageInfo.endCursor
-      issues = issues.concat(results.search.nodes.map((issue: Issue) => issue))
+      issues = issues.concat(results.search.nodes.map((issue) => issue))
       hasNextPage = results.search.pageInfo.hasNextPage
     } else {
       hasNextPage = false
