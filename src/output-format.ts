@@ -7,5 +7,8 @@ export enum OutputFormat {
   LIST = 'list',
 
   /** Outputs a raw list of URLs, one per line */
-  RAW = 'raw'
+  RAW = 'raw',
+
+  /** Outputs a NDJSON data **/
+  NDJSON = 'ndjson'
 }
