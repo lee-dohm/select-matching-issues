@@ -22,6 +22,15 @@ export function raw(issues: Issue[]): string {
 }
 
 /**
+ * Formats the issues into a NDJSON format, each line is a JSON object.
+ *
+ * @param issues List of issues to format
+ */
+ export function ndjson(issues: Issue[]): string {
+  return issues.map((issue) => JSON.stringify(issue)).join('\n')
+ }
+
+/**
  * Writes the list of issues to a string in the requested format.
  *
  * @param issues List of issues to format
@@ -34,6 +43,9 @@ export function write(issues: Issue[], format: OutputFormat): string {
 
     case OutputFormat.RAW:
       return raw(issues)
+
+    case OutputFormat.NDJSON:
+      return ndjson(issues)
 
     default:
       throw new Error(`Invalid output format: ${format}`)
